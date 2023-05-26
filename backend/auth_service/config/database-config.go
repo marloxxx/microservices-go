@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/marloxxx/golang_gin_gorm_GWT/entity"
+	"github.com/marloxxx/microservices-go/backend/auth_service/entity"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )

@@ -3,9 +3,9 @@ package service
 import (
 	"log"
 
-	"github.com/marloxxx/golang_gin_gorm_GWT/dto"
-	"github.com/marloxxx/golang_gin_gorm_GWT/entity"
-	"github.com/marloxxx/golang_gin_gorm_GWT/repository"
+	"github.com/marloxxx/microservices-go/backend/auth_service/dto"
+	"github.com/marloxxx/microservices-go/backend/auth_service/entity"
+	"github.com/marloxxx/microservices-go/backend/auth_service/repository"
 	"github.com/mashingan/smapping"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -17,11 +17,13 @@ type AuthService interface {
 	FindByEmail(email string) entity.User
 	IsDuplicateEmail(email string) bool
 }
+
 // membuat interface auth service dengan method verify credential, create user, find by email, is duplicate email
 
 type authService struct {
 	userRepository repository.UserRepository
 }
+
 // membuat struct auth service dengan field user repository
 
 func NewAuthService(userRep repository.UserRepository) AuthService { // method dengan parameter user repository
@@ -32,9 +34,9 @@ func NewAuthService(userRep repository.UserRepository) AuthService { // method d
 
 func (service *authService) VerifyCredential(email string, password string) interface{} { // method verify credential untuk memverifikasi email dan password
 	res := service.userRepository.VerifyCredential(email, password) // memanggil method verify credential pada user repository
-	if v, ok := res.(entity.User); ok { // jika res bertipe data entity user
+	if v, ok := res.(entity.User); ok {                             // jika res bertipe data entity user
 		comparePassword := comparePassword(v.Password, []byte(password)) // memanggil method compare password
-		if v.Email == email && comparePassword { // jika email dan password sama
+		if v.Email == email && comparePassword {                         // jika email dan password sama
 			return res // mengembalikan nilai res
 		}
 		return false // mengembalikan nilai false
@@ -43,13 +45,13 @@ func (service *authService) VerifyCredential(email string, password string) inte
 }
 
 func (service *authService) CreateUser(user dto.RegisterDTO) entity.User { // method create user untuk membuat user
-	userToCreate := entity.User{} // membuat objek user to create
+	userToCreate := entity.User{}                                        // membuat objek user to create
 	err := smapping.FillStruct(&userToCreate, smapping.MapFields(&user)) // memanggil method fill struct
-	if err != nil { // jika error tidak kosong
+	if err != nil {                                                      // jika error tidak kosong
 		log.Fatalf("Failed map %v", err) // menampilkan error
 	}
 	res := service.userRepository.InsertUser(userToCreate) // memanggil method insert user pada user repository
-	return res // mengembalikan nilai res
+	return res                                             // mengembalikan nilai res
 }
 
 func (service *authService) FindByEmail(email string) entity.User { // method find by email untuk mencari user berdasarkan email
@@ -58,13 +60,13 @@ func (service *authService) FindByEmail(email string) entity.User { // method fi
 
 func (service *authService) IsDuplicateEmail(email string) bool { // method is duplicate email untuk mengecek email yang sudah terdaftar
 	res := service.userRepository.IsDuplicateEmail(email) // memanggil method is duplicate email pada user repository
-	return !(res.Error == nil) // mengembalikan nilai res error tidak sama dengan kosong
+	return !(res.Error == nil)                            // mengembalikan nilai res error tidak sama dengan kosong
 }
 
 func comparePassword(hashedPwd string, plainPassword []byte) bool { // method compare password untuk membandingkan password
-	byteHash := []byte(hashedPwd) // membuat objek byte hash
+	byteHash := []byte(hashedPwd)                                 // membuat objek byte hash
 	err := bcrypt.CompareHashAndPassword(byteHash, plainPassword) // memanggil method compare hash and password
-	if err != nil { // jika error tidak kosong
+	if err != nil {                                               // jika error tidak kosong
 		return false // mengembalikan nilai false
 	}
 	return true // mengembalikan nilai true
