@@ -17,3 +17,25 @@
 <script src="{{ asset('js/FormControls.js') }}"></script>
 <script src="{{ asset('js/toastr.js') }}"></script>
 <script src="{{ asset('js/sweetalert.js') }}"></script>
+<script>
+    function addToCart(product_id) {
+        var quantity = $('#quantity').val();
+        $.ajax({
+            url: "{{ route('cart.store') }}",
+            method: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                product_id: product_id,
+                quantity: quantity
+            },
+            success: function(response) {
+                if (response.status) {
+                    toastr.success(response.message);
+                    // $('#cart-count').html(response.cart_count);
+                } else {
+                    toastr.error(response.message);
+                }
+            }
+        });
+    }
+</script>

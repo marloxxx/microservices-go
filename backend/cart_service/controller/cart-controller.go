@@ -32,7 +32,7 @@ func NewCartController(CartService service.CartService) CartController {
 
 func (c *cartController) All(ctx *gin.Context) {
 	// get carts where body request ID == carts.user_id
-	userID, err := strconv.ParseUint(ctx.Param("user_id"), 0, 0)
+	userID, err := strconv.ParseUint(ctx.Query("user_id"), 0, 0)
 	if err != nil {
 		res := helper.BuildErrorResponse("Failed to get ID", "No param ID were found", helper.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)

@@ -36,7 +36,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @php
+                                        $total = 0;
+                                    @endphp
                                     @foreach ($carts as $cart)
+                                        @php
+                                            $total += $cart->Price * $cart->Quantity;
+                                        @endphp
                                         <tr>
                                             <!-- img -->
                                             <td class="tp-cart-img">

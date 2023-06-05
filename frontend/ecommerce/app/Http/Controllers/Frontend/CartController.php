@@ -40,7 +40,7 @@ class CartController extends Controller
     public function index(){
         $this->setMeta('Cart');
         try {
-            $carts = json_decode($this->client->request('GET', $this->url . '/' . auth()->user()->id)->getBody()->getContents())->data;
+            $carts = json_decode($this->client->request('GET', $this->url . '/?user_id=' . auth()->user()->id)->getBody()->getContents())->data;
         } catch (\Exception $e) {
             $carts = [];
         }
@@ -59,18 +59,15 @@ class CartController extends Controller
                     'message' => 'Product is not available'
                 ]);
             }
-            // dd($product);
-            $this->body = [
-                'product_id' => intval($request->product_id),
-                'product_image' => $product->image,
-                'product_name' => $product->name,
-                'quantity' => $request->quantity,
-                'price' => $product->price,
-                'total' => $product->price * $request->quantity,
-            ];
-            // check if product is already in cart
-            $carts = json_decode($this->client->request('GET', $this->url . '/' . auth()->user()->id)->getBody()->getContents())->data;
-            // dd($carts);
+            try{
+                // check if product is already in cart
+                $carts = json_decode($this->client->request('GET', $this->url . '/?user_id=' . auth()->user()->id)->getBody()->getContents())->data;
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $e->getMessage()
+                ]);
+            }
             // if product is already in cart, update quantity
             foreach ($carts as $cart) {
                 if ($cart->ProductID == $request->product_id) {
@@ -86,10 +83,25 @@ class CartController extends Controller
                         'message' => 'Product added to cart',
                     ]);
                 } else {
-                    // if product is not in cart, add product to cart
+                   try{
+                    $this->body = [
+                        'user_id' => intval(auth()->user()->id),
+                        'product_id' => intval($request->product_id),
+                        'product_image' => $product->image,
+                        'product_name' => $product->name,
+                        'quantity' => intval($request->quantity),
+                        'price' => intval($product->price),
+                        'total' => intval($product->price * $request->quantity),
+                    ];
                     $this->client->request('POST', $this->url, [
                         'body' => json_encode($this->body)
                     ]);
+                   } catch (\Exception $e) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => $e->getMessage()
+                    ]);
+                     }
                     return response()->json([
                         'status' => 'success',
                         'message' => 'Product added to cart',

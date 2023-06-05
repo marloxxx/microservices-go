@@ -51,7 +51,7 @@ class CheckoutController extends Controller
             $cities = [];
         }
         try{
-            $carts = json_decode($this->client->request('GET', 'localhost:8082/api/carts/' . auth()->user()->id)->getBody()->getContents())->data;
+            $carts = json_decode($this->client->request('GET', 'localhost:8082/api/carts/?user_id=' . auth()->user()->id)->getBody()->getContents())->data;
 
         }catch(\Exception $e){
             $carts = [];
@@ -122,7 +122,7 @@ class CheckoutController extends Controller
 
     public function store(Request $request){
         try{
-            $carts = json_decode($this->client->request('GET', 'localhost:8082/api/carts/' . auth()->user()->id)->getBody()->getContents())->data;
+            $carts = json_decode($this->client->request('GET', 'localhost:8082/api/carts/?user_id=' . auth()->user()->id)->getBody()->getContents())->data;
         }catch(\Exception $e){
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -131,7 +131,7 @@ class CheckoutController extends Controller
         }catch(\Exception $e){
             return redirect()->back()->with('error', $e->getMessage());
         }
-        $carts = json_decode($this->client->request('GET', 'localhost:8082/api/carts/' . auth()->user()->id)->getBody()->getContents())->data;
+        $carts = json_decode($this->client->request('GET', 'localhost:8082/api/carts/?user_id=' . auth()->user()->id)->getBody()->getContents())->data;
         $products = json_decode($this->client->request('GET', 'localhost:8081/api/products')->getBody()->getContents())->data;
         // if products is not empty merge carts and products
         if(!empty($products)){
@@ -182,11 +182,15 @@ class CheckoutController extends Controller
             $this->client->request('DELETE', 'localhost:8082/api/carts/' . $cart->ID);
         }
 
-        return redirect()->route('orders.show', $order->id);
+        return redirect()->route('checkout.show', $order->id);
     }
 
     public function show($id){
-        $order = json_decode($this->client->request('GET', $this->url . '/' . $id)->getBody()->getContents())->data;
+        try{
+            $order = json_decode($this->client->request('GET', $this->url . '/' . $id)->getBody()->getContents())->data;
+        } catch(\Exception $e){
+            return redirect()->back()->with('error', $e->getMessage());
+        }
         $snapToken = $order->snap_token;
         if (empty($snapToken)) {
             // Jika snap token masih NULL, buat token snap dan simpan ke database
@@ -194,8 +198,9 @@ class CheckoutController extends Controller
             $midtrans = new CreateSnapTokenService($order);
             $snapToken = $midtrans->getSnapToken();
 
-            // Update snap token
-            $this->client->request('PUT', $this->url . '/' . $id, [
+           try{
+             // Update snap token
+             $this->client->request('PUT', $this->url . '/' . $id, [
                 'headers' => $this->headers,
                 'json' => [
                     'id' => $order->id,
@@ -208,6 +213,9 @@ class CheckoutController extends Controller
                     'snap_token' => $snapToken
                 ]
             ]);
+           } catch(\Exception $e){
+               return redirect()->back()->with('error', $e->getMessage());
+           }
         }
 
         return view('pages.frontend.checkout.show', compact('order', 'snapToken'));

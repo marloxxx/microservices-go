@@ -4,8 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\HomeController;
-use App\Http\Controllers\Frontend\CheckoutController;
+use App\Http\Controllers\PaymentCallbackController;
 use App\Http\Controllers\Frontend\ProductController;
+use App\Http\Controllers\Frontend\CheckoutController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -25,7 +26,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('cart', [CartController::class, 'index'])->name('cart');
     Route::post('cart', [CartController::class, 'store'])->name('cart.store');
-    Route::post('cart/update', [CartController::class, 'update'])->name('cart.update');
+    Route::post('cart/{id}', [CartController::class, 'update'])->name('cart.update');
+    Route::delete('cart/{id}', [CartController::class, 'destroy'])->name('cart.destroy');
 
     Route::get('checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('checkout/shipping', [CheckoutController::class, 'shipping'])->name('checkout.shipping');

@@ -4,7 +4,7 @@
         <div class="row row-cols-5">
             <div class="col">
                 <div class="tp-mobile-item text-center">
-                    <a href="shop.html" class="tp-mobile-item-btn">
+                    <a href="{{route('products.index')}}" class="tp-mobile-item-btn">
                         <i class="flaticon-store"></i>
                         <span>Store</span>
                     </a>

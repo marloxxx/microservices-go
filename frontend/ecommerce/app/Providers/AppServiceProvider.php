@@ -30,7 +30,7 @@ class AppServiceProvider extends ServiceProvider
             View::composer('layouts.frontend.master', function ($view) {
                 if (Auth::check()) {
                     $client = new \GuzzleHttp\Client();
-                $url = "localhost:8082/api/carts/" . auth()->user()->id;
+                $url = "localhost:8082/api/carts/?user_id=" . auth()->user()->id;
                 $headers = [
                     'Accept' => 'application/json',
                     'Content-Type' => 'application/json',
